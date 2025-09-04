@@ -1,0 +1,1746 @@
+    <!-- Modal réutilisable pour les détails de projet -->
+    <div id="project-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0a192f]/70 backdrop-blur-sm hidden">
+        <div class="bg-[#172a45] rounded-2xl shadow-2xl max-w-lg w-full p-8 relative border-2 border-[#64ffda] animate__animated animate__fadeInUp animate__faster">
+            <button id="close-project-modal" class="absolute top-3 right-3 text-[#64ffda] hover:text-[#52e0c4] text-2xl font-bold focus:outline-none" aria-label="Fermer">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="project-modal-content">
+                <!-- Contenu dynamique -->
+            </div>
+        </div>
+    </div>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="page_title">RAMSE-PORTFOLIO | Développeur Full-Stack & Pentesteur</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --primary: #0a192f;
+            --secondary: #172a45;
+            --accent: #64ffda;
+        }
+        body {
+            background: var(--primary);
+            color: #ccd6f6;
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+        }
+        .glow {
+            text-shadow: 0 0 10px rgba(100, 255, 218, 0.7);
+        }
+        .logo-3d {
+            perspective: 1000px;
+            animation: logo3d-spin 3.5s infinite linear;
+        }
+        .logo-3d-inner {
+            transition: transform 0.7s cubic-bezier(.4,0,.2,1);
+            transform-style: preserve-3d;
+        }
+        .logo-3d:hover .logo-3d-inner {
+            transform: rotateY(180deg) scale(1.08);
+        }
+        .logo-front, .logo-back {
+            backface-visibility: hidden;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            box-shadow: 0 0 16px 2px #64ffda, 0 0 32px 8px #0a192f;
+            filter: drop-shadow(0 0 8px #64ffda);
+        }
+        .logo-back {
+            transform: rotateY(180deg);
+        }
+        @keyframes logo3d-spin {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        .skill-bar {
+            height: 6px;
+            background-color: var(--secondary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .skill-progress {
+            height: 100%;
+            background-color: var(--accent);
+            border-radius: 3px;
+            transition: width 1.5s ease;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            left: -7.5px;
+            top: 5px;
+            background-color: var(--accent);
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            left: 0;
+            top: 0;
+            background-color: var(--accent);
+        }
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #64ffda, #fff, #64ffda);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            /* text-fill-color supprimé car non standard */
+        }
+        .name-color1 {
+            color: #64ffda;
+        }
+        .name-color2 {
+            color: #fff;
+        }
+        .card-hover:hover {
+            box-shadow: 0 8px 32px 0 rgba(100,255,218,0.15);
+            transform: translateY(-4px) scale(1.02);
+            transition: all 0.3s cubic-bezier(.4,0,.2,1);
+        }
+        .animate-footer-logo {
+            animation: pulseLogo 2.5s infinite;
+        }
+        @keyframes pulseLogo {
+            0%, 100% { text-shadow: 0 0 10px #64ffda; }
+            50% { text-shadow: 0 0 30px #64ffda; }
+        }
+        /* Soulignement dynamique du menu */
+        .nav-link {
+            position: relative;
+            transition: color 0.2s;
+        }
+        .nav-link:hover {
+            color: #64ffda;
+        }
+        .nav-link::after {
+            content: '';
+            display: block;
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 100%;
+            height: 2px;
+            background: #64ffda;
+            opacity: 0;
+            transform: scaleX(0);
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .nav-link:hover::after {
+            opacity: 1;
+            transform: scaleX(1);
+        }
+        /* Nom RAMSES NIMPA sur une seule ligne */
+        #animated-name {
+            white-space: nowrap;
+            font-size: 2.7rem; /* taille restaurée, ajustez si besoin */
+        }
+    </style>
+    <!-- Suppression de la balise </style> en trop -->
+</head>
+<body>
+    <!-- Suppression du CSS affiché dans le <body> -->
+    <!-- Navigation -->
+    <nav class="fixed w-full bg-[#0a192f] bg-opacity-90 z-40 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="logo-3d w-10 h-10 mr-2">
+                        <div class="logo-3d-inner relative w-full h-full" id="logo-3d-inner-header">
+                            <div class="logo-front flex items-center justify-center w-full h-full bg-[#64ffda] rounded-full animate-pulse">
+                                <span id="logo-letter-front" class="text-[#0a192f] font-extrabold text-lg drop-shadow-lg logo-shadow">R</span>
+                            </div>
+                            <div class="logo-back flex items-center justify-center w-full h-full bg-[#0a192f] border-2 border-[#64ffda] rounded-full animate-pulse">
+                                <span id="logo-letter-back" class="text-[#64ffda] font-extrabold text-lg drop-shadow-lg logo-shadow">P</span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <span class="text-xl font-bold text-[#64ffda]">RAMSES<span class="text-white">-PORTFOLIO</span></span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="nav-link text-sm font-medium text-[#ccd6f6] hover:text-[#64ffda] active" data-i18n="nav_home">Accueil</a>
+                    <a href="#about" class="nav-link text-sm font-medium text-[#ccd6f6] hover:text-[#64ffda]" data-i18n="nav_about">À propos</a>
+                    <a href="#skills" class="nav-link text-sm font-medium text-[#ccd6f6] hover:text-[#64ffda]" data-i18n="nav_skills">Compétences</a>
+                    <a href="#projects" class="nav-link text-sm font-medium text-[#ccd6f6] hover:text-[#64ffda]" data-i18n="nav_projects">Projets</a>
+                    <a href="#contact" class="nav-link text-sm font-medium text-[#ccd6f6] hover:text-[#64ffda]" data-i18n="nav_contact">Contact</a>
+                    <a href="/cv_ramses_nimpa.pdf" download class="px-4 py-2 border border-[#64ffda] text-[#64ffda] rounded-md text-sm font-medium hover:bg-[#64ffda] hover:bg-opacity-10 transition duration-300" aria-label="Télécharger mon CV" data-i18n="nav_cv">CV</a>
+                    <button id="lang-switch" type="button" class="ml-4 px-4 py-2 rounded-md text-sm font-bold border-2 border-[#64ffda] text-[#64ffda] bg-transparent animate-pulse transition duration-300 shadow-lg hover:bg-[#64ffda] hover:text-[#0a192f] focus:outline-none" aria-label="Changer la langue">
+                        <i class="fas fa-globe mr-2"></i><span id="lang-label">EN</span>
+                    </button>
+                </div>
+                <div class="md:hidden flex items-center">
+                <button id="lang-switch-mobile" type="button" class="ml-2 px-3 py-2 rounded-md text-base font-bold border-2 border-[#64ffda] text-[#64ffda] bg-transparent animate-pulse transition duration-300 shadow-lg hover:bg-[#64ffda] hover:text-[#0a192f] focus:outline-none" aria-label="Changer la langue">
+                    <i class="fas fa-globe mr-1"></i><span id="lang-label-mobile">EN</span>
+                </button>
+                    <button id="mobile-menu-button" type="button" class="text-[#ccd6f6] hover:text-[#64ffda] focus:outline-none" aria-label="Ouvrir le menu mobile">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+    <!-- Fin du bloc photo avec halo animé -->
+    </div> <!-- fermeture .max-w-7xl -->
+    </nav>
+
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-[#172a45]">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-[#ccd6f6] hover:text-[#64ffda] hover:bg-[#0a192f]" data-i18n="nav_home">Accueil</a>
+                <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-[#ccd6f6] hover:text-[#64ffda] hover:bg-[#0a192f]" data-i18n="nav_about">À propos</a>
+                <a href="#skills" class="block px-3 py-2 rounded-md text-base font-medium text-[#ccd6f6] hover:text-[#64ffda] hover:bg-[#0a192f]" data-i18n="nav_skills">Compétences</a>
+                <a href="#projects" class="block px-3 py-2 rounded-md text-base font-medium text-[#ccd6f6] hover:text-[#64ffda] hover:bg-[#0a192f]" data-i18n="nav_projects">Projets</a>
+                <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium text-[#ccd6f6] hover:text-[#64ffda] hover:bg-[#0a192f]" data-i18n="nav_contact">Contact</a>
+                <a href="/cv_ramses_nimpa.pdf" download class="block px-3 py-2 rounded-md text-base font-medium text-[#64ffda] border border-[#64ffda] hover:bg-[#64ffda] hover:bg-opacity-10" aria-label="Télécharger mon CV" data-i18n="nav_cv">CV</a>
+            </div>
+        </div>
+    <!-- fermeture du menu mobile -->
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div id="particles-js"></div>
+        <div class="content-wrapper max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 z-10">
+            <div class="flex flex-col-reverse md:flex-row items-center gap-10 md:gap-0">
+                <!-- Bloc texte principal -->
+                <div class="md:w-1/2 w-full flex flex-col items-start justify-center mb-10 md:mb-0">
+                    <h4 class="text-[#64ffda] text-lg mb-4 animate__animated animate__fadeInDown" data-i18n="hero_hello">Bonjour, je suis</h4>
+                    <h1 class="text-4xl md:text-6xl font-extrabold mb-4 glow animate__animated animate__fadeInLeft">
+                        <span id="animated-name" class="transition-colors duration-500">RAMSES NIMPA</span>
+                    </h1>
+                    <h2 class="text-2xl md:text-4xl font-bold mb-6 text-[#8892b0] animate__animated animate__fadeInUp">
+                        <span data-i18n="hero_iam">Je suis</span> <span id="typed" class="text-[#64ffda] font-extrabold"></span>
+                    </h2>
+                    <p class="text-[#8892b0] mb-8 max-w-lg animate__animated animate__fadeInUp animate__delay-1s" data-i18n="hero_desc">
+                        Développeur Full-Stack, Pentesteur &amp; passionné de cybersécurité. J’aide les entreprises à bâtir des solutions robustes, performantes et sécurisées.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 w-full animate__animated animate__fadeInUp animate__delay-2s">
+                        <a href="#contact" class="px-6 py-3 bg-[#64ffda] text-[#0a192f] rounded-md font-semibold shadow-lg hover:bg-[#52e0c4] transition duration-300 text-center w-full sm:w-auto" data-i18n="hero_contact">Me contacter</a>
+                        <a href="#projects" class="px-6 py-3 border border-[#64ffda] text-[#64ffda] rounded-md font-semibold hover:bg-[#64ffda] hover:text-[#0a192f] hover:bg-opacity-10 transition duration-300 text-center w-full sm:w-auto" data-i18n="hero_projects">Voir mes projets</a>
+                        <a href="/cv_ramses_nimpa.pdf" download class="px-6 py-3 border border-[#64ffda] text-[#64ffda] rounded-md font-semibold hover:bg-[#64ffda] hover:text-[#0a192f] hover:bg-opacity-10 transition duration-300 text-center w-full sm:w-auto" aria-label="Télécharger mon CV" data-i18n="hero_cv">Télécharger mon CV</a>
+                    </div>
+                </div>
+                <!-- Bloc photo avec halo animé -->
+                <div class="md:w-1/2 w-full flex justify-center items-center">
+                    <div class="relative w-64 h-64 md:w-80 md:h-80">
+                        <div class="absolute inset-0 border-2 border-[#64ffda] rounded-full opacity-20 floating floating-delay-1"></div>
+                        <div class="absolute inset-4 border-2 border-[#64ffda] rounded-full opacity-40 floating floating-delay-2"></div>
+                        <div class="absolute inset-8 border-2 border-[#64ffda] rounded-full opacity-60 floating floating-delay-3"></div>
+                        <div class="absolute inset-12 bg-[#172a45] rounded-full flex items-center justify-center overflow-hidden">
+                            <img src="11.jpg"
+                                 alt="Ramses Nimpa" data-i18n-alt="img_alt_hero"
+                                 class="w-full h-full object-cover">
+                        </div>
+                        <!-- Logo 3D animé -->
+                        <div id="logo-3d-container" class="absolute left-1/2 -translate-x-1/2 bottom-[-60px] w-24 h-24 z-10"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div> <!-- fermeture .content-wrapper -->
+    </section> <!-- fermeture section Hero -->
+    </section> <!-- fermeture section About -->
+    </section> <!-- fermeture section Skills -->
+    </section> <!-- fermeture section Projects -->
+    </section> <!-- fermeture section Contact -->
+    </footer> <!-- fermeture du footer -->
+    <!-- Fermeture correcte du bloc principal Hero -->
+    <!-- Fermeture correcte du bloc About -->
+    <!-- Fermeture correcte du bloc Skills -->
+    <!-- Fermeture correcte du bloc Projects -->
+    <!-- Fermeture correcte du bloc Contact -->
+    <!-- Fermeture correcte du footer -->
+        <!-- Flèche scroll-down animée -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce z-20">
+            <a href="#about" class="text-[#64ffda]" aria-label="Aller à la section À propos">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+            </a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+
+    <section id="about" class="py-20 bg-[#172a45] animate__animated animate__fadeInUp animate__slower">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col items-center mb-12">
+                <h2 class="text-3xl font-bold text-center mb-4">
+                    <span class="text-[#ccd6f6]" data-i18n="about_title1">À propos de </span>
+                    <span class="text-[#64ffda]" data-i18n="about_title2">moi</span>
+                </h2>
+                <div class="w-20 h-1 bg-[#64ffda] mx-auto mb-12"></div>
+            </div>
+
+            <div class="flex flex-col md:flex-row items-center">
+                <!-- Bloc photo -->
+                <div class="md:w-1/3 mb-10 md:mb-0 flex justify-center">
+                    <div class="relative w-64 h-64 rounded-full overflow-hidden border-4 border-[#64ffda] shadow-lg animate__animated animate__zoomIn">
+                        <img src="03.jpg"
+                             alt="Ramses Nimpa" data-i18n-alt="img_alt_about"
+                             class="w-full h-full object-cover">
+                    </div>
+                </div>
+                <!-- Bloc texte -->
+                <div class="md:w-2/3 md:pl-12">
+                    <!-- Phrase d'accroche animée -->
+                    <div class="mb-4 flex items-center gap-3">
+                        <span class="inline-block text-[#64ffda] text-lg font-semibold animate__animated animate__fadeInLeft animate__delay-1s" id="about-catchphrase" data-i18n="about_catchphrase">Développeur passionné, créatif et rigoureux.</span>
+                        <a href="https://www.linkedin.com/in/djikayramses/" target="_blank" rel="noopener" aria-label="LinkedIn Ramses Nimpa" class="ml-2 text-[#64ffda] hover:text-[#52e0c4] transition-colors text-2xl">
+
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                    </div>
+                    <h3 class="text-2xl font-bold text-[#ccd6f6] mb-4 animate__animated animate__fadeInDown" data-i18n="about_who">Qui suis-je ?</h3>
+                    <p class="text-[#8892b0] mb-6 animate__animated animate__fadeInUp animate__delay-1s" data-i18n="about_desc">
+                        Je suis Ramses Nimpa, un développeur Full-Stack et Pentesteur passionné par la cybersécurité.<br>
+                        Titulaire d'une licence technologique en génie logiciel, je me spécialise actuellement en cybersécurité chez CyberZone Cameroun.<br>
+                        Mon expertise couvre le développement d'applications web sécurisées et la réalisation de tests d'intrusion pour évaluer la robustesse des systèmes.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 animate__animated animate__fadeInUp animate__delay-2s">
+                        <div>
+                            <p class="text-[#8892b0]"><span class="text-[#64ffda] font-medium" data-i18n="about_label_name">Nom :</span> Ramses Nimpa</p>
+                            <p class="text-[#8892b0]"><span class="text-[#64ffda] font-medium" data-i18n="about_label_email">Email :</span> djikayramses@gmail.com</p>
+                            <p class="text-[#8892b0]"><span class="text-[#64ffda] font-medium" data-i18n="about_label_phone">Téléphone :</span> +237 694 966 814</p>
+                        </div>
+                        <div>
+                            <p class="text-[#8892b0]"><span class="text-[#64ffda] font-medium" data-i18n="about_label_linkedin">LinkedIn :</span> <a href="https://www.linkedin.com/in/djikayramses/" target="_blank" rel="noopener" class="hover:underline text-[#64ffda]">Djikay Ramses <i class="fab fa-linkedin"></i></a></p>
+                            <p class="text-[#8892b0]"><span class="text-[#64ffda] font-medium" data-i18n="about_label_edu">Formation :</span> Licence en Génie Logiciel</p>
+                            <p class="text-[#8892b0]"><span class="text-[#64ffda] font-medium" data-i18n="about_label_spec">Spécialisation :</span> Cybersécurité</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-4 animate__animated animate__fadeInUp animate__delay-3s">
+                        <div class="px-4 py-2 bg-[#0a192f] rounded-md flex items-center shadow-md">
+                            <i class="fas fa-graduation-cap text-[#64ffda] mr-2"></i>
+                            <span class="text-[#ccd6f6]" data-i18n="about_xp">3+ années d'expérience</span>
+                        </div>
+                        <div class="px-4 py-2 bg-[#0a192f] rounded-md flex items-center shadow-md">
+                            <i class="fas fa-project-diagram text-[#64ffda] mr-2"></i>
+                            <span class="text-[#ccd6f6]" data-i18n="about_projects">10+ projets réalisés</span>
+                        </div>
+                        <div class="px-4 py-2 bg-[#0a192f] rounded-md flex items-center shadow-md">
+                            <i class="fas fa-shield-alt text-[#64ffda] mr-2"></i>
+                            <span class="text-[#ccd6f6]" data-i18n="about_certif">Certifications en cours</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-20 bg-[#0a192f]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-4 animate__animated animate__fadeInDown">
+                <span class="text-[#ccd6f6]" data-i18n="skills_my">Mes </span>
+                <span class="text-[#64ffda]" data-i18n="skills_title">Compétences</span>
+            </h2>
+            <div class="w-20 h-1 bg-[#64ffda] mx-auto mb-12 animate__animated animate__fadeIn"></div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- Technical Skills -->
+                <div class="animate__animated animate__fadeInLeft animate__delay-1s">
+                    <h3 class="text-xl font-bold text-[#ccd6f6] mb-6 flex items-center">
+                        <i class="fas fa-code text-[#64ffda] mr-3"></i>
+                        <span data-i18n="skills_technical">Compétences Techniques</span>
+                    </h3>
+
+                    <div class="space-y-6">
+                        <!-- Langages -->
+                        <div>
+                            <h4 class="text-lg font-medium text-[#64ffda] mb-3 flex items-center"><i class="fas fa-terminal mr-2"></i><span data-i18n="skills_languages">Langages de programmation</span></h4>
+                            <div class="space-y-2">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-[#ccd6f6]">Python</span>
+                                        <span class="text-sm text-[#8892b0] skill-percent" data-percent="90">0%</span>
+                                    </div>
+                                    <div class="skill-bar">
+                                        <div class="skill-progress" data-percent="90"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-[#ccd6f6]">JavaScript</span>
+                                        <span class="text-sm text-[#8892b0] skill-percent" data-percent="95">0%</span>
+                                    </div>
+                                    <div class="skill-bar">
+                                        <div class="skill-progress" data-percent="95"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-[#ccd6f6]">Java</span>
+                                        <span class="text-sm text-[#8892b0] skill-percent" data-percent="80">0%</span>
+                                    </div>
+                                    <div class="skill-bar">
+                                        <div class="skill-progress" data-percent="80"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-[#ccd6f6]">PHP</span>
+                                        <span class="text-sm text-[#8892b0] skill-percent" data-percent="85">0%</span>
+                                    </div>
+                                    <div class="skill-bar">
+                                        <div class="skill-progress" data-percent="85"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-[#ccd6f6]">C#</span>
+                                        <span class="text-sm text-[#8892b0] skill-percent" data-percent="75">0%</span>
+                                    </div>
+                                    <div class="skill-bar">
+                                        <div class="skill-progress" data-percent="75"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-[#ccd6f6]">C</span>
+                                        <span class="text-sm text-[#8892b0] skill-percent" data-percent="90">0%</span>
+                                    </div>
+                                    <div class="skill-bar">
+                                        <div class="skill-progress" data-percent="90"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Frameworks -->
+                        <div>
+                            <h4 class="text-lg font-medium text-[#64ffda] mb-3 flex items-center"><i class="fas fa-layer-group mr-2"></i><span data-i18n="skills_frameworks">Frameworks &amp; Bibliothèques</span></h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Django</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Express.js</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">React</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">TailwindCSS</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Spring Boot</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Node.js</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Chart.js</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">vue.js</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Animate.css</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">bcrypt</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">crypto</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">FastAPI</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">scikit-learn</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">pandas</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">transformer</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">requets</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">And More</span>
+
+                            </div>
+                        </div>
+
+                        <!-- Backend -->
+                        <div>
+                            <h4 class="text-lg font-medium text-[#64ffda] mb-3 flex items-center"><i class="fas fa-server mr-2"></i><span data-i18n="skills_backend">Backend</span></h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">API REST</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Microservices</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">JWT</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">OAuth</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">GraphQL</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">WebSockets</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">torch</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">CORS</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">And More</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cybersecurity &amp; Other Skills -->
+                <div class="animate__animated animate__fadeInRight animate__delay-1s">
+                    <!-- Cybersecurity -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold text-[#ccd6f6] mb-6 flex items-center">
+                            <i class="fas fa-shield-alt text-[#64ffda] mr-3"></i>
+                            <span data-i18n="skills_cyber">Cybersécurité</span>
+                        </h3>
+
+                        <div class="space-y-2">
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm font-medium text-[#ccd6f6]">Tests d'intrusion</span>
+                                    <span class="text-sm text-[#8892b0] skill-percent" data-percent="85">0%</span>
+                                </div>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-percent="85"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm font-medium text-[#ccd6f6]">Analyse de vulnérabilités</span>
+                                    <span class="text-sm text-[#8892b0] skill-percent" data-percent="80">0%</span>
+                                </div>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-percent="80"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm font-medium text-[#ccd6f6]">Forensique numérique</span>
+                                    <span class="text-sm text-[#8892b0] skill-percent" data-percent="75">0%</span>
+                                </div>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-percent="75"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h4 class="text-lg font-medium text-[#64ffda] mb-3 flex items-center"><i class="fas fa-tools mr-2"></i><span data-i18n="skills_tools">Outils</span></h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Nmap</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Metasploit</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Burp Suite</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Wireshark</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Nessus</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Kali Linux</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">OWASP ZAP</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">John the Ripper</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">And More</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Networks -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold text-[#ccd6f6] mb-3 flex items-center">
+                            <i class="fas fa-network-wired text-[#64ffda] mr-3"></i>
+                            <span data-i18n="skills_network">Réseaux</span>
+                        </h3>
+
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">TCP/IP</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">DNS</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">DHCP</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">VPN</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Firewalls</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">IDS/IPS</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">LAN/WAN</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">WiFi Security</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">And More</span>
+                        </div>
+                    </div>
+
+                    <!-- Databases &amp; DevOps -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold text-[#ccd6f6] mb-3 flex items-center">
+                            <i class="fas fa-database text-[#64ffda] mr-3"></i>
+                            <span data-i18n="skills_dbdevops">Bases de données &amp; DevOps</span>
+                        </h3>
+
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">MySQL</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">PostgreSQL</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">MongoDB</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Git/GitHub</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Docker</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">AWS</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Azure</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">CI/CD</span>
+                        </div>
+                    </div>
+
+                    <!-- Soft Skills -->
+                    <div>
+                        <h3 class="text-xl font-bold text-[#ccd6f6] mb-3 flex items-center">
+                            <i class="fas fa-brain text-[#64ffda] mr-3"></i>
+                            <span data-i18n="skills_soft">Compétences transversales</span>
+                        </h3>
+
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Résolution de problèmes</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Pensée critique</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Gestion de projet</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Communication</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Travail d'équipe</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Adaptabilité</span>
+                            <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Leadership</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-20 bg-[#172a45]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-4">
+                <span class="text-[#ccd6f6]" data-i18n="projects_my">Mes </span>
+                <span class="text-[#64ffda]" data-i18n="projects_title">Projets</span>
+            </h2>
+            <div class="w-20 h-1 bg-[#64ffda] mx-auto mb-12"></div>
+
+            <!-- Academic Projects -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-bold text-[#ccd6f6] mb-8 flex items-center">
+                    <i class="fas fa-graduation-cap text-[#64ffda] mr-4"></i>
+                    <span data-i18n="projects_academic">Projets Académiques</span>
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Project 1 -->
+                    <div class="card-hover bg-[#0a192f] rounded-lg overflow-hidden shadow-lg">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                                 alt="VoteSecure"
+                                 class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                            <div class="absolute inset-0 bg-[#0a192f] bg-opacity-70 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                <a href="#" class="px-4 py-2 border border-[#64ffda] text-[#64ffda] rounded-md font-medium hover:bg-[#64ffda] hover:text-[#0a192f] transition duration-300" data-i18n="projects_details_btn">
+                                    Voir les détails
+                                </a>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h4 class="text-xl font-bold text-[#ccd6f6] mb-2" data-i18n="projects_votesecure_title">VoteSecure</h4>
+                            <p class="text-[#8892b0] mb-4" data-i18n="projects_votesecure_desc">
+                                Application web sécurisée de gestion des élections électroniques testée avec des milliers d'électeurs simulés.
+                            </p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">HTML5</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">CSS3</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">TailwindCSS</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">JavaScript</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Node.js</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">PostgreSQL</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">JWT</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">2FA</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">Blockchain</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">CORS</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">SSL</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">reCAPTCHA</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">bcryp</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">crypto</span>
+                                <span class="px-3 py-1 bg-[#172a45] text-[#ccd6f6] rounded-full text-sm">IA</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <a href="#" class="text-[#64ffda] text-sm font-medium hover:underline" data-i18n="projects_view_btn">
+                                    <i class="fas fa-external-link-alt mr-1"></i> Voir le projet
+                                </a>
+                                <a href="#" class="text-[#64ffda] text-sm font-medium hover:underline" data-i18n="projects_code_btn">
+                                    <i class="fab fa-github mr-1"></i> Code source
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 2 -->
+                    <div class="card-hover bg-[#0a192f] rounded-lg overflow-hidden shadow-lg">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                                 alt="Bridge Connector"
+                                 class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                            <div class="absolute inset-0 bg-[#0a192f] bg-opacity-70 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                <a href="#" class="px-4 py-2 border border-[#64ffda] text-[#64ffda] rounded-md font-medium hover:bg-[#64ffda] hover:text-[#0a192f] transition duration-300 project-details-btn" data-project="blog">
+                                    Voir les détails
+                                </a>
+
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h4 class="text-xl font-bold text-[#ccd6f6] mb-2">Bridge Connector</h4>
+                            <p class="text-[#8892b0] mb-4">
+                                Application web de réservation de billets de voyage en ligne avec système de paiement intégré.
+                            </p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">React</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Node.js</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Express</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">MongoDB</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Stripe API</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">JWT</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Google Maps API</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <a href="#" class="text-[#64ffda] text-sm font-medium hover:underline">
+                                    <i class="fas fa-external-link-alt mr-1"></i> Voir le projet
+                                </a>
+                                <a href="#" class="text-[#64ffda] text-sm font-medium hover:underline">
+                                    <i class="fab fa-github mr-1"></i> Code source
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cybersecurity Projects -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-bold text-[#ccd6f6] mb-8 flex items-center">
+                    <i class="fas fa-shield-alt text-[#64ffda] mr-4"></i>
+                    <span data-i18n="projects_cyber">Projets en Cybersécurité</span>
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Project 1 -->
+                    <div class="card-hover bg-[#0a192f] rounded-lg overflow-hidden shadow-lg">
+                        <div class="relative h-40 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                                 alt="Pentest Report"
+                                 class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                            <div class="absolute inset-0 bg-[#0a192f] bg-opacity-70 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                <a href="#" class="px-3 py-1 border border-[#64ffda] text-[#64ffda] rounded-md text-sm font-medium hover:bg-[#64ffda] hover:text-[#0a192f] transition duration-300" data-i18n="projects_details_btn">
+                                    Voir les Détails
+                                </a>
+
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h4 class="text-lg font-bold text-[#ccd6f6] mb-2" data-i18n="projects_audit_title">Audit de sécurité</h4>
+                            <p class="text-[#8892b0] text-sm mb-4" data-i18n="projects_audit_desc">
+                                Test d'intrusion complet d'une application web avec rapport détaillé des vulnérabilités.
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Kali Linux</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Burp Suite</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Nmap</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 2 -->
+                    <div class="card-hover bg-[#0a192f] rounded-lg overflow-hidden shadow-lg">
+                        <div class="relative h-40 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                                 alt="Network Security"
+                                 class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                            <div class="absolute inset-0 bg-[#0a192f] bg-opacity-70 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                <a href="#" class="px-3 py-1 border border-[#64ffda] text-[#64ffda] rounded-md text-sm font-medium hover:bg-[#64ffda] hover:text-[#0a192f] transition duration-300">
+                                    Voir les Détails
+                                </a>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h4 class="text-lg font-bold text-[#ccd6f6] mb-2">Sécurisation réseau</h4>
+                            <p class="text-[#8892b0] text-sm mb-4">
+                                Mise en place d'une architecture réseau sécurisée avec firewall et système de détection d'intrusion.
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Cisco</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">pfSense</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Snort</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 3 -->
+                    <div class="card-hover bg-[#0a192f] rounded-lg overflow-hidden shadow-lg">
+                        <div class="relative h-40 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                                 alt="Forensic Analysis"
+                                 class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                            <div class="absolute inset-0 bg-[#0a192f] bg-opacity-70 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                <a href="#" class="px-3 py-1 border border-[#64ffda] text-[#64ffda] rounded-md text-sm font-medium hover:bg-[#64ffda] hover:text-[#0a192f] transition duration-300">
+                                    Voir les Détails
+                                </a>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h4 class="text-lg font-bold text-[#ccd6f6] mb-2">Analyse forensique</h4>
+                            <p class="text-[#8892b0] text-sm mb-4">
+                                Investigation numérique sur une attaque de ransomware avec récupération de données.
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">FTK</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Autopsy</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Wireshark</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Projects -->
+            <div>
+                <h3 class="text-2xl font-bold text-[#ccd6f6] mb-8 flex items-center">
+                    <i class="fas fa-laptop-code text-[#64ffda] mr-4"></i>
+                    <span data-i18n="projects_personal">Projets Personnels</span>
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Project 1 : Blog Technique -->
+                    <div class="card-hover bg-[#0a192f] rounded-lg overflow-hidden shadow-lg">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="api_image.jpg"
+                                 alt="Blog Technique"
+                                 class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                            <div class="absolute inset-0 bg-[#0a192f] bg-opacity-70 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                <a href="#" class="px-4 py-2 border border-[#64ffda] text-[#64ffda] rounded-md font-medium hover:bg-[#64ffda] hover:text-[#0a192f] transition duration-300 project-details-btn" data-project="pwdmgr">
+                                    Voir les détails
+                                </a>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h4 class="text-xl font-bold text-[#ccd6f6] mb-2" data-i18n="projects_blog_title">Blog Technique</h4>
+                            <p class="text-[#8892b0] mb-4" data-i18n="projects_blog_desc">
+                                Plateforme de blog technique partageant des tutoriels sur le développement et la sécurité.
+                            </p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Django</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">PostgreSQL</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">TailwindCSS</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Docker</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <a href="#" class="text-[#64ffda] text-sm font-medium hover:underline" data-i18n="projects_view_btn">
+                                    <i class="fas fa-external-link-alt mr-1"></i> Voir le projet
+                                </a>
+                                <a href="#" class="text-[#64ffda] text-sm font-medium hover:underline" data-i18n="projects_code_btn">
+                                    <i class="fab fa-github mr-1"></i> Code source
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 2 : Gestionnaire de mots de passe -->
+                    <div class="card-hover bg-[#0a192f] rounded-lg overflow-hidden shadow-lg">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="secure.jpg"
+                                 alt="Gestionnaire de mots de passe"
+                                 class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                            <div class="absolute inset-0 bg-[#0a192f] bg-opacity-70 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                <a href="#" class="px-4 py-2 border border-[#64ffda] text-[#64ffda] rounded-md font-medium hover:bg-[#64ffda] hover:text-[#0a192f] transition duration-300">
+                                    Voir les détails
+                                </a>
+
+    <!-- Modal Popup Projet -->
+    <div id="project-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0a192f]/70 backdrop-blur-sm hidden">
+        <div class="bg-[#172a45] rounded-2xl shadow-2xl max-w-lg w-full p-8 relative border-2 border-[#64ffda] animate__animated animate__fadeInUp animate__faster">
+            <button id="close-project-modal" class="absolute top-3 right-3 text-[#64ffda] hover:text-[#52e0c4] text-2xl font-bold focus:outline-none" aria-label="Fermer">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="project-modal-content">
+                <!-- Contenu dynamique -->
+            </div>
+        </div>
+    </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h4 class="text-xl font-bold text-[#ccd6f6] mb-2" data-i18n="projects_pwdmgr_title">Gestionnaire de mots de passe</h4>
+                            <p class="text-[#8892b0] mb-4" data-i18n="projects_pwdmgr_desc">
+                                Application locale sécurisée pour stocker et gérer des mots de passe avec chiffrement AES-256.
+                            </p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Python</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">PyQt5</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">SQLite</span>
+                                <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Cryptographie</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <a href="#" class="text-[#64ffda] text-sm font-medium hover:underline">
+                                    <i class="fas fa-external-link-alt mr-1"></i> Voir le projet
+                                </a>
+                                <a href="#" class="text-[#64ffda] text-sm font-medium hover:underline">
+                                    <i class="fab fa-github mr-1"></i> Code source
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+
+
+    <section id="contact" class="py-20 bg-[#0a192f]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-4">
+                <span class="text-[#ccd6f6]" data-i18n="contact_title1">Contactez</span>
+                <span class="text-[#64ffda]" data-i18n="contact_title2">-moi</span>
+            </h2>
+            <div class="w-20 h-1 bg-[#64ffda] mx-auto mb-12"></div>
+
+            <div class="flex flex-col md:flex-row">
+                <div class="md:w-1/2 mb-10 md:mb-0 md:pr-10">
+                    <h3 class="text-2xl font-bold text-[#ccd6f6] mb-6" data-i18n="contact_discuss">Discutons de votre projet</h3>
+                    <p class="text-[#8892b0] mb-8" data-i18n="contact_desc">
+                        Que vous ayez une question, une opportunité de collaboration ou simplement envie de discuter
+                        technologie et cybersécurité, n'hésitez pas à me contacter. Je serai ravi d'échanger avec vous !
+                    </p>
+
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="bg-[#172a45] p-3 rounded-full mr-4">
+                                <i class="fas fa-envelope text-[#64ffda]"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-medium text-[#ccd6f6]" data-i18n="contact_label_email">Email</h4>
+                                <a href="mailto:djikayramses@gmail.com" class="text-[#8892b0] hover:text-[#64ffda] transition duration-300">djikayramses@gmail.com</a>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="bg-[#172a45] p-3 rounded-full mr-4">
+                                <i class="fas fa-phone-alt text-[#64ffda]"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-medium text-[#ccd6f6]" data-i18n="contact_label_phone">Téléphone</h4>
+                                <a href="tel:+237694966814" class="text-[#8892b0] hover:text-[#64ffda] transition duration-300">+237&nbsp;694&nbsp;966&nbsp;814</a>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="bg-[#172a45] p-3 rounded-full mr-4">
+                                <i class="fab fa-linkedin-in text-[#64ffda]"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-medium text-[#ccd6f6]" data-i18n="contact_label_linkedin">LinkedIn</h4>
+                                <a href="#" class="text-[#8892b0] hover:text-[#64ffda] transition duration-300">Djikay Ramses</a>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="bg-[#172a45] p-3 rounded-full mr-4">
+                                <i class="fab fa-github text-[#64ffda]"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-medium text-[#ccd6f6]" data-i18n="contact_label_github">GitHub</h4>
+                                <a href="#" class="text-[#8892b0] hover:text-[#64ffda] transition duration-300">github.com/ramses-dev</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:w-1/2">
+                    <form class="space-y-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-[#ccd6f6] mb-1" data-i18n="contact_label_name">Nom complet</label>
+                            <input type="text" id="name" name="name"
+                                   class="w-full px-4 py-2 bg-[#172a45] border border-[#1f3a68] rounded-md focus:outline-none focus:border-[#64ffda] text-[#ccd6f6] placeholder-[#1f3a68]"
+                                   placeholder="Votre nom complet" data-i18n-ph="ph_name">
+                        </div>
+
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-[#ccd6f6] mb-1" data-i18n="contact_label_email">Email</label>
+                            <input type="email" id="email" name="email"
+                                   class="w-full px-4 py-2 bg-[#172a45] border border-[#1f3a68] rounded-md focus:outline-none focus:border-[#64ffda] text-[#ccd6f6] placeholder-[#1f3a68]"
+                                   placeholder="Votre email" data-i18n-ph="ph_email">
+                        </div>
+
+                        <div>
+                            <label for="subject" class="block text-sm font-medium text-[#ccd6f6] mb-1" data-i18n="contact_label_subject">Sujet</label>
+                            <input type="text" id="subject" name="subject"
+                                   class="w-full px-4 py-2 bg-[#172a45] border border-[#1f3a68] rounded-md focus:outline-none focus:border-[#64ffda] text-[#ccd6f6] placeholder-[#1f3a68]"
+                                   placeholder="Sujet du message" data-i18n-ph="ph_subject">
+                        </div>
+
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-[#ccd6f6] mb-1" data-i18n="contact_label_message">Message</label>
+                            <textarea id="message" name="message" rows="5"
+                                      class="w-full px-4 py-2 bg-[#172a45] border border-[#1f3a68] rounded-md focus:outline-none focus:border-[#64ffda] text-[#ccd6f6] placeholder-[#1f3a68]"
+                                      placeholder="Votre message" data-i18n-ph="ph_message"></textarea>
+                        </div>
+
+                        <div>
+                            <button type="submit"
+                                    class="px-6 py-3 bg-[#64ffda] text-[#0a192f] rounded-md font-medium hover:bg-[#52e0c4] transition duration-300 w-full" data-i18n="contact_btn">
+                                Envoyer le message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[#020c1b] py-4 flex flex-col items-center justify-center relative overflow-hidden">
+        <div class="mx-auto w-full max-w-xl flex flex-col items-center justify-center">
+            <div class="flex items-center justify-center mb-4 gap-4 w-full">
+                <div id="footer-logo-3d-container" class="w-16 h-16"></div>
+                <div class="footer-logo-text-3d relative flex items-center justify-center">
+                    <span class="footer-logo-3d-text font-extrabold text-2xl gradient-text animate-footer-logo" data-i18n="footer_logo">RAMSES<span class="text-white">-PORTFOLIO</span></span>
+                </div>
+            </div>
+            <p class="text-[#8892b0] text-sm text-center" data-i18n="footer_copyright">© 2025 Ramses Nimpa. Tous droits réservés.</p>
+        </div>
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-xl h-2 bg-gradient-to-r from-[#64ffda] via-[#0a192f] to-[#64ffda] opacity-40 animate-pulse"></div>
+    </footer>
+
+    <!-- Back to top button -->
+    <a href="#home" id="back-to-top" class="fixed bottom-8 right-8 bg-[#64ffda] text-[#0a192f] p-3 rounded-full shadow-lg opacity-0 invisible transition-all duration-300" aria-label="Retour en haut">
+        <span class="sr-only">Retour en haut</span>
+    data-i18n="back_to_top"
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+    </a>
+    <!-- JS regroupé et corrigé -->
+    <script>
+    // ...existing code...
+    // Bloc JS unifié pour toutes les fonctionnalités dynamiques
+    // (modals, animations, cubes, switch langue, barres de compétences, footer)
+    // ...code JS unifié inséré ici...
+            // Dictionnaire de traduction complet FR/EN (étendu)
+            const translations = {
+                fr: {
+                    page_title: "RAMSE-PORTFOLIO | Développeur Full-Stack & Pentesteur",
+                    img_alt_hero: "Ramses Nimpa",
+                    img_alt_about: "Ramses Nimpa portrait",
+                    aria_linkedin: "LinkedIn Ramses Nimpa",
+                    aria_scroll_down: "Aller à la section À propos",
+                    ph_name: "Votre nom complet",
+                    ph_email: "Votre email",
+                    ph_subject: "Sujet du message",
+                    ph_message: "Votre message",
+                    // ...existing keys...
+                    nav_home: "Accueil",
+                    nav_about: "À propos",
+                    nav_skills: "Compétences",
+                    nav_projects: "Projets",
+                    nav_contact: "Contact",
+                    nav_cv: "CV",
+                    hero_hello: "Bonjour, je suis",
+                    hero_iam: "Je suis",
+                    hero_desc: "Développeur Full-Stack, Pentesteur & passionné de cybersécurité. J’aide les entreprises à bâtir des solutions robustes, performantes et sécurisées.",
+                    hero_contact: "Me contacter",
+                    hero_projects: "Voir mes projets",
+                    hero_cv: "Télécharger mon CV",
+                    about_title1: "À propos de ",
+                    about_title2: "moi",
+                    about_catchphrase: "Développeur passionné, créatif et rigoureux.",
+                    about_who: "Qui suis-je ?",
+                    about_desc: "Je suis Ramses Nimpa, un développeur Full-Stack et Pentesteur passionné par la cybersécurité. Titulaire d'une licence technologique en génie logiciel, je me spécialise actuellement en cybersécurité chez CyberZone Cameroun. Mon expertise couvre le développement d'applications web sécurisées et la réalisation de tests d'intrusion pour évaluer la robustesse des systèmes.",
+                    about_label_name: "Nom :",
+                    about_label_email: "Email :",
+                    about_label_phone: "Téléphone :",
+                    about_label_linkedin: "LinkedIn :",
+                    about_label_edu: "Formation :",
+                    about_label_spec: "Spécialisation :",
+                    about_xp: "3+ années d'expérience",
+                    about_projects: "10+ projets réalisés",
+                    about_certif: "Certifications en cours",
+                    skills_my: "Mes ",
+                    skills_title: "Compétences",
+                    skills_technical: "Compétences Techniques",
+                    skills_languages: "Langages de programmation",
+                    skills_frameworks: "Frameworks & Bibliothèques",
+                    skills_backend: "Backend",
+                    skills_cyber: "Cybersécurité",
+                    skills_tools: "Outils",
+                    skills_network: "Réseaux",
+                    projects_my: "Mes ",
+                    projects_title: "Projets",
+                    projects_academic: "Projets Académiques",
+                    projects_cyber: "Projets en Cybersécurité",
+                    projects_personal: "Projets Personnels",
+                    projects_details_btn: "Voir les détails",
+                    projects_view_btn: "Voir le projet",
+                    projects_code_btn: "Code source",
+                    projects_votesecure_title: "VoteSecure",
+                    projects_votesecure_desc: "Application web sécurisée de gestion des élections électroniques testée avec des milliers d'électeurs simulés.",
+                    projects_bridge_title: "Bridge Connector",
+                    projects_bridge_desc: "Application web de réservation de billets de voyage en ligne avec système de paiement intégré.",
+                    projects_audit_title: "Audit de sécurité",
+                    projects_audit_desc: "Test d'intrusion complet d'une application web avec rapport détaillé des vulnérabilités.",
+                    projects_network_title: "Sécurisation réseau",
+                    projects_network_desc: "Mise en place d'une architecture réseau sécurisée avec firewall et système de détection d'intrusion.",
+                    projects_forensic_title: "Analyse forensique",
+                    projects_forensic_desc: "Investigation numérique sur une attaque de ransomware avec récupération de données.",
+                    projects_blog_title: "Blog Technique",
+                    projects_blog_desc: "Plateforme de blog technique partageant des tutoriels sur le développement et la sécurité.",
+                    projects_pwdmgr_title: "Gestionnaire de mots de passe",
+                    projects_pwdmgr_desc: "Application locale sécurisée pour stocker et gérer des mots de passe avec chiffrement AES-256.",
+                    contact_title1: "Contactez",
+                    contact_title2: "-moi",
+                    contact_discuss: "Discutons de votre projet",
+                    contact_desc: "Que vous ayez une question, une opportunité de collaboration ou simplement envie de discuter technologie et cybersécurité, n'hésitez pas à me contacter. Je serai ravi d'échanger avec vous !",
+                    contact_label_name: "Nom complet",
+                    contact_label_email: "Email",
+                    contact_label_phone: "Téléphone",
+                    contact_label_subject: "Sujet",
+                    contact_label_message: "Message",
+                    contact_label_linkedin: "LinkedIn",
+                    contact_label_github: "GitHub",
+                    contact_btn: "Envoyer le message",
+                    footer_logo: "RAMSES-PORTFOLIO",
+                    footer_copyright: "© 2025 Ramses Nimpa. Tous droits réservés.",
+                    back_to_top: "Retour en haut"
+                },
+                en: {
+                    page_title: "RAMSE-PORTFOLIO | Full-Stack Developer & Pentester",
+                    img_alt_hero: "Ramses Nimpa",
+                    img_alt_about: "Ramses Nimpa portrait",
+                    aria_linkedin: "LinkedIn Ramses Nimpa",
+                    aria_scroll_down: "Go to About section",
+                    ph_name: "Your full name",
+                    ph_email: "Your email",
+                    ph_subject: "Message subject",
+                    ph_message: "Your message",
+                    // ...existing keys...
+                    nav_home: "Home",
+                    nav_about: "About",
+                    nav_skills: "Skills",
+                    nav_projects: "Projects",
+                    nav_contact: "Contact",
+                    nav_cv: "Resume",
+                    hero_hello: "Hello, I am",
+                    hero_iam: "I am",
+                    hero_desc: "Full-Stack Developer, Pentester & cybersecurity enthusiast. I help companies build robust, high-performance and secure solutions.",
+                    hero_contact: "Contact me",
+                    hero_projects: "See my projects",
+                    hero_cv: "Download my Resume",
+                    about_title1: "About ",
+                    about_title2: "me",
+                    about_catchphrase: "Passionate, creative and rigorous developer.",
+                    about_who: "Who am I?",
+                    about_desc: "I am Ramses Nimpa, a Full-Stack Developer and Pentester passionate about cybersecurity. Holder of a technology degree in software engineering, I am currently specializing in cybersecurity at CyberZone Cameroon. My expertise covers the development of secure web applications and penetration testing to assess system robustness.",
+                    about_label_name: "Name:",
+                    about_label_email: "Email:",
+                    about_label_phone: "Phone:",
+                    about_label_linkedin: "LinkedIn:",
+                    about_label_edu: "Education:",
+                    about_label_spec: "Specialization:",
+                    about_xp: "3+ years experience",
+                    about_projects: "10+ projects completed",
+                    about_certif: "Certifications in progress",
+                    skills_my: "My ",
+                    skills_title: "Skills",
+                    skills_technical: "Technical Skills",
+                    skills_languages: "Programming Languages",
+                    skills_frameworks: "Frameworks & Libraries",
+                    skills_backend: "Backend",
+                    skills_cyber: "Cybersecurity",
+                    skills_tools: "Tools",
+                    skills_network: "Networks",
+                    projects_my: "My ",
+                    projects_title: "Projects",
+                    projects_academic: "Academic Projects",
+                    projects_cyber: "Cybersecurity Projects",
+                    projects_personal: "Personal Projects",
+                    projects_details_btn: "See details",
+                    projects_view_btn: "View project",
+                    projects_code_btn: "Source code",
+                    projects_votesecure_title: "VoteSecure",
+                    projects_votesecure_desc: "Secure web application for electronic election management tested with thousands of simulated voters.",
+                    projects_bridge_title: "Bridge Connector",
+                    projects_bridge_desc: "Online travel ticket booking web app with integrated payment system.",
+                    projects_audit_title: "Security Audit",
+                    projects_audit_desc: "Full penetration test of a web application with detailed vulnerability report.",
+                    projects_network_title: "Network Security",
+                    projects_network_desc: "Implementation of a secure network architecture with firewall and intrusion detection system.",
+                    projects_forensic_title: "Forensic Analysis",
+                    projects_forensic_desc: "Digital investigation of a ransomware attack with data recovery.",
+                    projects_blog_title: "Tech Blog",
+                    projects_blog_desc: "Technical blog platform sharing tutorials on development and security.",
+                    projects_pwdmgr_title: "Password Manager",
+                    projects_pwdmgr_desc: "Secure local app to store and manage passwords with AES-256 encryption.",
+                    contact_title1: "Contact",
+                    contact_title2: "-me",
+                    contact_discuss: "Let's discuss your project",
+                    contact_desc: "Whether you have a question, a collaboration opportunity or just want to talk tech and cybersecurity, feel free to contact me. I will be happy to chat with you!",
+                    contact_label_name: "Full name",
+                    contact_label_email: "Email",
+                    contact_label_phone: "Phone",
+                    contact_label_subject: "Subject",
+                    contact_label_message: "Message",
+                    contact_label_linkedin: "LinkedIn",
+                    contact_label_github: "GitHub",
+                    contact_btn: "Send message",
+                    footer_logo: "RAMSES-PORTFOLIO",
+                    footer_copyright: "© 2025 Ramses Nimpa. All rights reserved.",
+                    back_to_top: "Back to top"
+                }
+            };
+
+        // Fonction de traduction dynamique
+        function updateLang(lang) {
+            document.documentElement.lang = lang;
+            // Traduction des textes avec data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+            // Traduction des attributs alt
+            document.querySelectorAll('[data-i18n-alt]').forEach(el => {
+                const key = el.getAttribute('data-i18n-alt');
+                if (translations[lang][key]) {
+                    el.setAttribute('alt', translations[lang][key]);
+                }
+            });
+            // Met à jour le titre de la page
+            document.title = translations[lang]['page_title'];
+            // Met à jour le label du bouton langue
+            const label = document.getElementById('lang-label');
+            const labelMobile = document.getElementById('lang-label-mobile');
+            if (label) label.textContent = lang === 'fr' ? 'EN' : 'FR';
+            if (labelMobile) labelMobile.textContent = lang === 'fr' ? 'EN' : 'FR';
+        }
+
+        // Gestion du switch langue
+        let currentLang = 'fr';
+        function switchLang() {
+            currentLang = currentLang === 'fr' ? 'en' : 'fr';
+            updateLang(currentLang);
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialisation
+            updateLang(currentLang);
+            // Boutons
+            const btn = document.getElementById('lang-switch');
+            const btnMobile = document.getElementById('lang-switch-mobile');
+            if (btn) btn.addEventListener('click', switchLang);
+            if (btnMobile) btnMobile.addEventListener('click', switchLang);
+        });
+    // 1. Animation du texte d'accroche "about-catchphrase"
+    document.addEventListener('DOMContentLoaded', function() {
+        const catchphrases = [
+            "Développeur passionné, créatif et rigoureux.",
+            "Expert en cybersécurité et pentesting.",
+            "Full-stack, orienté solutions robustes."
+        ];
+        let idx = 0, char = 0, isDeleting = false;
+        const el = document.getElementById('about-catchphrase');
+        function typeCatchphrase() {
+            if (!el) return;
+            const phrase = catchphrases[idx];
+            if (!isDeleting) {
+                el.textContent = phrase.substring(0, char + 1);
+                char++;
+                if (char === phrase.length) {
+                    isDeleting = true;
+                    setTimeout(typeCatchphrase, 1200);
+                    return;
+                }
+            } else {
+                el.textContent = phrase.substring(0, char - 1);
+                char--;
+                if (char === 0) {
+                    isDeleting = false;
+                    idx = (idx + 1) % catchphrases.length;
+                    setTimeout(typeCatchphrase, 600);
+                    return;
+                }
+            }
+            setTimeout(typeCatchphrase, isDeleting ? 40 : 90);
+        }
+        typeCatchphrase();
+
+        // 2. Animation cyclique du nom RAMSES NIMPA
+        (function() {
+            const nameElement = document.getElementById('animated-name');
+            if (!nameElement) return;
+            const nameText = 'RAMSES NIMPA';
+            const colors = ['#64ffda', '#fff'];
+            let isErasing = false;
+            let charIdx = 0;
+            let colorSwap = false;
+            function renderName(chars) {
+                let html = '';
+                for (let i = 0; i < chars; i++) {
+                    const color = (i < 6) ? (colorSwap ? colors[1] : colors[0]) : (colorSwap ? colors[0] : colors[1]);
+                    const colorClass = (color === colors[0]) ? 'name-color1' : 'name-color2';
+                    html += '<span class="' + colorClass + '">' + nameText[i] + '</span>';
+                }
+                nameElement.innerHTML = html;
+            }
+            function animateName() {
+                if (!isErasing) {
+                    if (charIdx < nameText.length) {
+                        renderName(charIdx);
+                        charIdx++;
+                        setTimeout(animateName, 170); // écriture progressive
+                    } else {
+                        renderName(charIdx); // Affiche le nom complet
+                        setTimeout(() => {
+                            isErasing = true;
+                            setTimeout(animateName, 600); // pause avant effacement
+                        }, 1200); // nom complet affiché 1,2s
+                    }
+                } else {
+                    if (charIdx > 0) {
+                        renderName(charIdx);
+                        charIdx--;
+                        setTimeout(animateName, 90); // effacement progressif
+                    } else {
+                        renderName(0); // efface tout
+                        isErasing = false;
+                        charIdx = 0;
+                        colorSwap = !colorSwap;
+                        setTimeout(animateName, 600); // pause avant réécriture
+                    }
+                }
+            }
+            animateName();
+        })();
+
+        // 3. Animation des barres de progression et pourcentages
+        function animateSkills() {
+            const bars = document.querySelectorAll('.skill-progress');
+            const percents = document.querySelectorAll('.skill-percent');
+            bars.forEach((bar, idx) => {
+                const percent = parseInt(bar.getAttribute('data-percent'));
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.transition = 'width 1.5s cubic-bezier(0.4,0,0.2,1)';
+                    bar.style.width = percent + '%';
+                }, 300 + idx * 200);
+            });
+            percents.forEach((el, idx) => {
+                const target = parseInt(el.getAttribute('data-percent'));
+                let current = 0;
+                setTimeout(() => {
+                    const interval = setInterval(() => {
+                        if (current < target) {
+                            current++;
+                            el.textContent = current + '%';
+                        } else {
+                            clearInterval(interval);
+                        }
+                    }, 18);
+                }, 300 + idx * 200);
+            });
+        }
+        let skillsAnimated = false;
+        window.addEventListener('scroll', function onScroll() {
+            const section = document.getElementById('skills');
+            if (!section) return;
+            const rect = section.getBoundingClientRect();
+            if (!skillsAnimated && rect.top < window.innerHeight - 100) {
+
+                animateSkills();
+                skillsAnimated = true;
+                window.removeEventListener('scroll', onScroll);
+            }
+        });
+        setTimeout(() => {
+            const section = document.getElementById('skills');
+            if (!section) return;
+            const rect = section.getBoundingClientRect();
+            if (!skillsAnimated && rect.top < window.innerHeight - 100) {
+                animateSkills();
+                skillsAnimated = true;
+            }
+        }, 500);
+
+        // Cube 3D Hero et Footer avec couleur accentuée
+        function create3DCube(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.offsetWidth/container.offsetHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(container.offsetWidth, container.offsetHeight);
+            container.appendChild(renderer.domElement);
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            // Couleur accentuée identique au logo
+            const material = new THREE.MeshStandardMaterial({ color: 0x64ffda, emissive: 0x64ffda, emissiveIntensity: 0.7, metalness: 0.5, roughness: 0.2 });
+            const cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+            const light = new THREE.PointLight(0xffffff, 1.2, 100);
+            light.position.set(2, 2, 2);
+            scene.add(light);
+            camera.position.z = 2.5;
+            function animate() {
+                requestAnimationFrame(animate);
+                cube.rotation.x += 0.01;
+                cube.rotation.y += 0.015;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+        create3DCube('logo-3d-container');
+        create3DCube('footer-logo-3d-container');
+
+        // Animation dynamique du nom RAMSES-PORTFOLIO dans le footer
+        // Animation robotique moderne du nom RAMSES-PORTFOLIO dans le footer
+        // Animation 3D moderne et lisible du nom RAMSES-PORTFOLIO dans le footer
+        (function animateFooterLogo3D() {
+            const footerLogo = document.querySelector('.footer-logo-3d-text');
+            if (!footerLogo) return;
+            const text = 'RAMSES-PORTFOLIO';
+            const mainColor = '#fff'; // Blanc pur pour la meilleure visibilité
+            let charIdx = 0;
+            let isErasing = false;
+            let cursorVisible = true;
+            // Ajout du style 3D CSS
+            footerLogo.style.perspective = '600px';
+            footerLogo.style.display = 'inline-block';
+            footerLogo.style.transformStyle = 'preserve-3d';
+            footerLogo.style.fontFamily = "Inter, Segoe UI, Arial, sans-serif";
+            footerLogo.style.fontWeight = "900";
+            // Animation de rotation 3D douce
+            let rot = 0;
+            function renderFooter(chars, cursorOn) {
+                let html = '';
+                for (let i = 0; i < chars; i++) {
+                    html += '<span class="footer-3d-letter" style="color:' + mainColor + ';text-shadow:0 2px 12px #0a192f, 0 1px 0 #64ffda;letter-spacing:1.5px;font-weight:900;">' + text[i] + '</span>';
+                }
+                if (cursorOn) {
+                    html += '<span style="color:' + mainColor + ';font-weight:bold;animation:blink-cursor 1s steps(1) infinite;">▌</span>';
+                }
+                footerLogo.innerHTML = html;
+                // Applique la rotation 3D
+                footerLogo.style.transform = 'rotateY(' + rot + 'deg)';
+            }
+            function animate() {
+                rot += 0.5; // rotation douce
+                if (!isErasing) {
+                    if (charIdx < text.length) {
+                        renderFooter(charIdx, cursorVisible);
+                        charIdx++;
+                        setTimeout(animate, 90);
+                    } else {
+                        renderFooter(charIdx, cursorVisible);
+                        setTimeout(() => {
+                            isErasing = true;
+                            setTimeout(animate, 700);
+                        }, 1200);
+                    }
+                } else {
+                    if (charIdx > 0) {
+                        renderFooter(charIdx, cursorVisible);
+                        charIdx--;
+                        setTimeout(animate, 55);
+                    } else {
+                        renderFooter(0, cursorVisible);
+                        isErasing = false;
+                        charIdx = 0;
+                        setTimeout(animate, 500);
+                    }
+                }
+            }
+            // Curseur clignotant indépendant
+            setInterval(() => {
+                cursorVisible = !cursorVisible;
+            }, 400);
+            animate();
+        })();
+
+        // Style pour effet 3D sur chaque lettre
+        const style3d = document.createElement('style');
+        style3d.innerHTML = `
+        .footer-3d-letter {
+            display: inline-block;
+            transform: rotateX(10deg) translateZ(1.5px); /* effet 3D subtil, sans skew */
+            text-shadow: 0 2px 12px #0a192f, 0 1px 0 #64ffda;
+            font-family: Inter, Segoe UI, Arial, sans-serif;
+            font-weight: 900;
+            font-size: 1em;
+            letter-spacing: 1.5px;
+        }
+        `;
+        document.head.appendChild(style3d);
+
+        // Ajout du style pour le curseur clignotant
+        const style = document.createElement('style');
+        style.innerHTML = `@keyframes blink-cursor { 0%{opacity:1;} 50%{opacity:0;} 100%{opacity:1;} }`;
+        document.head.appendChild(style);
+    });
+    // Fin JS regroupé et corrigé
+    </script>
+    <!-- Fin du body et du document HTML -->
+    <script>
+    // Gestion du switch langue
+    function switchLang() {
+        currentLang = currentLang === 'fr' ? 'en' : 'fr';
+        updateLang(currentLang);
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        updateLang(currentLang);
+        const btn = document.getElementById('lang-switch');
+        const btnMobile = document.getElementById('lang-switch-mobile');
+        if (btn) btn.addEventListener('click', switchLang);
+        if (btnMobile) btnMobile.addEventListener('click', switchLang);
+    });
+
+    // Animation du texte d'accroche "about-catchphrase"
+    document.addEventListener('DOMContentLoaded', function() {
+        const catchphrases = [
+            "Développeur passionné, créatif et rigoureux.",
+            "Expert en cybersécurité et pentesting.",
+            "Full-stack, orienté solutions robustes."
+        ];
+        let idx = 0, char = 0, isDeleting = false;
+        const el = document.getElementById('about-catchphrase');
+        function typeCatchphrase() {
+            if (!el) return;
+            const phrase = catchphrases[idx];
+            if (!isDeleting) {
+                el.textContent = phrase.substring(0, char + 1);
+                char++;
+                if (char === phrase.length) {
+                    isDeleting = true;
+                    setTimeout(typeCatchphrase, 1200);
+                    return;
+                }
+            } else {
+                el.textContent = phrase.substring(0, char - 1);
+                char--;
+                if (char === 0) {
+                    isDeleting = false;
+                    idx = (idx + 1) % catchphrases.length;
+                    setTimeout(typeCatchphrase, 600);
+                    return;
+                }
+            }
+            setTimeout(typeCatchphrase, isDeleting ? 40 : 90);
+        }
+        typeCatchphrase();
+
+        // Animation cyclique du nom RAMSES NIMPA
+        (function() {
+            const nameElement = document.getElementById('animated-name');
+            if (!nameElement) return;
+            const nameText = 'RAMSES NIMPA';
+            const colors = ['#64ffda', '#fff'];
+            let isErasing = false;
+            let charIdx = 0;
+            let colorSwap = false;
+            function renderName(chars) {
+                let html = '';
+                for (let i = 0; i < chars; i++) {
+                    const color = (i < 6) ? (colorSwap ? colors[1] : colors[0]) : (colorSwap ? colors[0] : colors[1]);
+                    const colorClass = (color === colors[0]) ? 'name-color1' : 'name-color2';
+                    html += '<span class="' + colorClass + '">' + nameText[i] + '</span>';
+                }
+                nameElement.innerHTML = html;
+            }
+            function animateName() {
+                if (!isErasing) {
+                    if (charIdx < nameText.length) {
+                        renderName(charIdx);
+                        charIdx++;
+                        setTimeout(animateName, 170);
+                    } else {
+                        renderName(charIdx);
+                        setTimeout(() => {
+                            isErasing = true;
+                            setTimeout(animateName, 600);
+                        }, 1200);
+                    }
+                } else {
+                    if (charIdx > 0) {
+                        renderName(charIdx);
+                        charIdx--;
+                        setTimeout(animateName, 90);
+                    } else {
+                        renderName(0);
+                        isErasing = false;
+                        charIdx = 0;
+                        colorSwap = !colorSwap;
+                        setTimeout(animateName, 600);
+                    }
+                }
+            }
+            animateName();
+        })();
+
+        // Animation des barres de progression et pourcentages
+        function animateSkills() {
+            const bars = document.querySelectorAll('.skill-progress');
+            const percents = document.querySelectorAll('.skill-percent');
+            bars.forEach((bar, idx) => {
+                const percent = parseInt(bar.getAttribute('data-percent'));
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.transition = 'width 1.5s cubic-bezier(0.4,0,0.2,1)';
+                    bar.style.width = percent + '%';
+                }, 300 + idx * 200);
+            });
+            percents.forEach((el, idx) => {
+                const target = parseInt(el.getAttribute('data-percent'));
+                let current = 0;
+                setTimeout(() => {
+                    const interval = setInterval(() => {
+                        if (current < target) {
+                            current++;
+                            el.textContent = current + '%';
+                        } else {
+                            clearInterval(interval);
+                        }
+                    }, 18);
+                }, 300 + idx * 200);
+            });
+        }
+        let skillsAnimated = false;
+        window.addEventListener('scroll', function onScroll() {
+            const section = document.getElementById('skills');
+            if (!section) return;
+            const rect = section.getBoundingClientRect();
+            if (!skillsAnimated && rect.top < window.innerHeight - 100) {
+                animateSkills();
+                skillsAnimated = true;
+                window.removeEventListener('scroll', onScroll);
+            }
+        });
+        setTimeout(() => {
+            const section = document.getElementById('skills');
+            if (!section) return;
+            const rect = section.getBoundingClientRect();
+            if (!skillsAnimated && rect.top < window.innerHeight - 100) {
+                animateSkills();
+                skillsAnimated = true;
+            }
+        }, 500);
+
+        // Cube 3D Hero et Footer
+        function create3DCube(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.offsetWidth/container.offsetHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(container.offsetWidth, container.offsetHeight);
+            container.appendChild(renderer.domElement);
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshStandardMaterial({ color: 0x64ffda, emissive: 0x64ffda, emissiveIntensity: 0.7, metalness: 0.5, roughness: 0.2 });
+            const cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+            const light = new THREE.PointLight(0xffffff, 1.2, 100);
+            light.position.set(2, 2, 2);
+            scene.add(light);
+            camera.position.z = 2.5;
+            function animate() {
+                requestAnimationFrame(animate);
+                cube.rotation.x += 0.01;
+                cube.rotation.y += 0.015;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+        create3DCube('logo-3d-container');
+        create3DCube('footer-logo-3d-container');
+
+        // Animation du nom dans le footer
+        (function animateFooterLogo3D() {
+            const footerLogo = document.querySelector('.footer-logo-3d-text');
+            if (!footerLogo) return;
+            const text = 'RAMSES-PORTFOLIO';
+            const mainColor = '#fff';
+            let charIdx = 0;
+            let isErasing = false;
+            let cursorVisible = true;
+            footerLogo.style.perspective = '600px';
+            footerLogo.style.display = 'inline-block';
+            footerLogo.style.transformStyle = 'preserve-3d';
+            footerLogo.style.fontFamily = "Inter, Segoe UI, Arial, sans-serif";
+            footerLogo.style.fontWeight = "900";
+            let rot = 0;
+            function renderFooter(chars, cursorOn) {
+                let html = '';
+                for (let i = 0; i < chars; i++) {
+                    html += '<span class="footer-3d-letter" style="color:' + mainColor + ';text-shadow:0 2px 12px #0a192f, 0 1px 0 #64ffda;letter-spacing:1.5px;font-weight:900;">' + text[i] + '</span>';
+                }
+                if (cursorOn) {
+                    html += '<span style="color:' + mainColor + ';font-weight:bold;animation:blink-cursor 1s steps(1) infinite;">▌</span>';
+                }
+                footerLogo.innerHTML = html;
+                footerLogo.style.transform = 'rotateY(' + rot + 'deg)';
+            }
+            function animate() {
+                rot += 0.5;
+                if (!isErasing) {
+                    if (charIdx < text.length) {
+                        renderFooter(charIdx, cursorVisible);
+                        charIdx++;
+                        setTimeout(animate, 90);
+                    } else {
+                        renderFooter(charIdx, cursorVisible);
+                        setTimeout(() => {
+                            isErasing = true;
+                            setTimeout(animate, 700);
+                        }, 1200);
+                    }
+                } else {
+                    if (charIdx > 0) {
+                        renderFooter(charIdx, cursorVisible);
+                        charIdx--;
+                        setTimeout(animate, 55);
+                    } else {
+                        renderFooter(0, cursorVisible);
+                        isErasing = false;
+                        charIdx = 0;
+                        setTimeout(animate, 500);
+                    }
+                }
+            }
+            setInterval(() => {
+                cursorVisible = !cursorVisible;
+            }, 400);
+            animate();
+        })();
+
+        // Style 3D pour chaque lettre du footer
+        const style3d = document.createElement('style');
+        style3d.innerHTML = `
+        .footer-3d-letter {
+            display: inline-block;
+            transform: rotateX(10deg) translateZ(1.5px);
+            text-shadow: 0 2px 12px #0a192f, 0 1px 0 #64ffda;
+            font-family: Inter, Segoe UI, Arial, sans-serif;
+            font-weight: 900;
+            font-size: 1em;
+            letter-spacing: 1.5px;
+        }
+        `;
+        document.head.appendChild(style3d);
+        const style = document.createElement('style');
+        style.innerHTML = `@keyframes blink-cursor { 0%{opacity:1;} 50%{opacity:0;} 100%{opacity:1;} }`;
+        document.head.appendChild(style);
+
+        // Modal projets
+        document.querySelectorAll('[data-project]').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const projectId = btn.getAttribute('data-project');
+                const modal = document.getElementById('project-modal');
+                const modalContent = document.getElementById('project-modal-content');
+                // Récupérer les infos du projet (à adapter selon votre structure)
+                const projectCard = document.querySelector(`[data-project-card='${projectId}']`);
+                if (!projectCard) return;
+                modalContent.innerHTML = projectCard.innerHTML;
+                modal.classList.remove('hidden');
+            });
+        });
+        document.getElementById('close-project-modal').addEventListener('click', function() {
+            document.getElementById('project-modal').classList.add('hidden');
+        });
+    });
+    </script>
+    <!-- Fin du body et du document HTML -->
+</body>
+</html>
