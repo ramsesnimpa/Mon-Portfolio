@@ -88,6 +88,23 @@
             top: 0;
             background-color: var(--accent);
         }
+
+        /* Optimisations pour les animations sur mobile */
+        @media (max-width: 767px) {
+            .animate__animated {
+                will-change: transform, opacity;
+                backface-visibility: hidden;
+                perspective: 1000px;
+            }
+            /* Réduire la durée des animations sur mobile pour plus de fluidité */
+            .animate__animated {
+                animation-duration: 0.6s !important;
+            }
+            /* Forcer l'accélération GPU */
+            .animate__animated {
+                transform: translate3d(0, 0, 0);
+            }
+        }
         #particles-js {
             position: absolute;
             width: 100%;
@@ -1743,6 +1760,25 @@
         });
         document.getElementById('close-project-modal').addEventListener('click', function() {
             document.getElementById('project-modal').classList.add('hidden');
+        });
+
+        // Gestion de la flèche "Retour en haut"
+        const backToTopBtn = document.getElementById('back-to-top');
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.remove('opacity-0', 'invisible');
+            } else {
+                backToTopBtn.classList.add('opacity-0', 'invisible');
+            }
+        });
+
+        // Animation smooth scroll pour la flèche
+        backToTopBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         });
     });
     </script>
