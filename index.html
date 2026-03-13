@@ -184,7 +184,8 @@
                     <a href="#skills" class="nav-link text-sm font-medium text-[#ccd6f6] hover:text-[#64ffda]" data-i18n="nav_skills">Compétences</a>
                     <a href="#projects" class="nav-link text-sm font-medium text-[#ccd6f6] hover:text-[#64ffda]" data-i18n="nav_projects">Projets</a>
                     <a href="#contact" class="nav-link text-sm font-medium text-[#ccd6f6] hover:text-[#64ffda]" data-i18n="nav_contact">Contact</a>
-                    <a href="CV Ramses02.pdf" download class="px-4 py-2 border border-[#64ffda] text-[#64ffda] rounded-md text-sm font-medium hover:bg-[#64ffda] hover:bg-opacity-10 transition duration-300" aria-label="Télécharger mon CV" data-i18n="nav_cv">CV</a>
+                    <!-- Bouton CV dans le header : Affiche le PDF dans un nouvel onglet sans le télécharger -->
+                    <a href="CV Ramses02.pdf" target="_blank" class="px-4 py-2 border border-[#64ffda] text-[#64ffda] rounded-md text-sm font-medium hover:bg-[#64ffda] hover:bg-opacity-10 transition duration-300" aria-label="Afficher mon CV" data-i18n="nav_cv">CV</a>
                     <button id="lang-switch" type="button" class="ml-4 px-4 py-2 rounded-md text-sm font-bold border-2 border-[#64ffda] text-[#64ffda] bg-transparent animate-pulse transition duration-300 shadow-lg hover:bg-[#64ffda] hover:text-[#0a192f] focus:outline-none" aria-label="Changer la langue">
                         <i class="fas fa-globe mr-2"></i><span id="lang-label">EN</span>
                     </button>
@@ -205,7 +206,7 @@
     </nav>
 
         <!-- Mobile menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-[#172a45]">
+        <div id="mobile-menu" class="hidden md:hidden bg-[#172a45] fixed top-16 left-0 w-full z-50">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                 <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-[#ccd6f6] hover:text-[#64ffda] hover:bg-[#0a192f]" data-i18n="nav_home">Accueil</a>
                 <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-[#ccd6f6] hover:text-[#64ffda] hover:bg-[#0a192f]" data-i18n="nav_about">À propos</a>
@@ -306,7 +307,7 @@
                     <!-- Phrase d'accroche animée -->
                     <div class="mb-4 flex items-center gap-3">
                         <span class="inline-block text-[#64ffda] text-lg font-semibold animate__animated animate__fadeInLeft animate__delay-1s" id="about-catchphrase" data-i18n="about_catchphrase">Développeur passionné, créatif et rigoureux.</span>
-                        <a href="https://www.linkedin.com/in/djikayramses/" target="_blank" rel="noopener" aria-label="LinkedIn Ramses Nimpa" class="ml-2 text-[#64ffda] hover:text-[#52e0c4] transition-colors text-2xl">
+                        <a href="https://www.linkedin.com/in/ramses-djika%C3%BF-fils/?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%3BRrPPZdxtSUuAGbYmna6vpg%3D%3D" target="_blank" rel="noopener" aria-label="LinkedIn Ramses Nimpa" class="ml-2 text-[#64ffda] hover:text-[#52e0c4] transition-colors text-2xl">
 
                             <i class="fab fa-linkedin"></i>
                         </a>
@@ -664,8 +665,8 @@
                             </div>
                         </div>
                         <div class="p-6">
-                            <h4 class="text-xl font-bold text-[#ccd6f6] mb-2">Bridge Connector</h4>
-                            <p class="text-[#8892b0] mb-4">
+                            <h4 class="text-xl font-bold text-[#ccd6f6] mb-2" data-i18n="projects_bridge_title">Bridge Connector</h4>
+                            <p class="text-[#8892b0] mb-4" data-i18n="projects_bridge_desc">
                                 Application web de réservation de billets de voyage en ligne avec système de paiement intégré.
                             </p>
                             <div class="flex flex-wrap gap-2 mb-4">
@@ -678,10 +679,10 @@
                                 <span class="px-2 py-1 bg-[#172a45] text-[#64ffda] rounded-full text-xs">Google Maps API</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <a href="#" class="text-[#64ffda] text-sm font-medium hover:underline">
+                                <a href="#" class="text-[#64ffda] text-sm font-medium hover:underline" data-i18n="projects_view_btn">
                                     <i class="fas fa-external-link-alt mr-1"></i> Voir le projet
                                 </a>
-                                <a href="#" class="text-[#64ffda] text-sm font-medium hover:underline">
+                                <a href="#" class="text-[#64ffda] text-sm font-medium hover:underline" data-i18n="projects_code_btn">
                                     <i class="fab fa-github mr-1"></i> Code source
                                 </a>
                             </div>
@@ -731,14 +732,14 @@
                                  alt="Network Security"
                                  class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
                             <div class="absolute inset-0 bg-[#0a192f] bg-opacity-70 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-                                <a href="#" class="px-3 py-1 border border-[#64ffda] text-[#64ffda] rounded-md text-sm font-medium hover:bg-[#64ffda] hover:text-[#0a192f] transition duration-300">
+                                <a href="#" class="px-3 py-1 border border-[#64ffda] text-[#64ffda] rounded-md text-sm font-medium hover:bg-[#64ffda] hover:text-[#0a192f] transition duration-300" data-i18n="projects_details_btn">
                                     Voir les Détails
                                 </a>
                             </div>
                         </div>
                         <div class="p-6">
-                            <h4 class="text-lg font-bold text-[#ccd6f6] mb-2">Sécurisation réseau</h4>
-                            <p class="text-[#8892b0] text-sm mb-4">
+                            <h4 class="text-lg font-bold text-[#ccd6f6] mb-2" data-i18n="projects_network_title">Sécurisation réseau</h4>
+                            <p class="text-[#8892b0] text-sm mb-4" data-i18n="projects_network_desc">
                                 Mise en place d'une architecture réseau sécurisée avec firewall et système de détection d'intrusion.
                             </p>
                             <div class="flex flex-wrap gap-2">
@@ -756,14 +757,14 @@
                                  alt="Forensic Analysis"
                                  class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
                             <div class="absolute inset-0 bg-[#0a192f] bg-opacity-70 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-                                <a href="#" class="px-3 py-1 border border-[#64ffda] text-[#64ffda] rounded-md text-sm font-medium hover:bg-[#64ffda] hover:text-[#0a192f] transition duration-300">
+                                <a href="#" class="px-3 py-1 border border-[#64ffda] text-[#64ffda] rounded-md text-sm font-medium hover:bg-[#64ffda] hover:text-[#0a192f] transition duration-300" data-i18n="projects_details_btn">
                                     Voir les Détails
                                 </a>
                             </div>
                         </div>
                         <div class="p-6">
-                            <h4 class="text-lg font-bold text-[#ccd6f6] mb-2">Analyse forensique</h4>
-                            <p class="text-[#8892b0] text-sm mb-4">
+                            <h4 class="text-lg font-bold text-[#ccd6f6] mb-2" data-i18n="projects_forensic_title">Analyse forensique</h4>
+                            <p class="text-[#8892b0] text-sm mb-4" data-i18n="projects_forensic_desc">
                                 Investigation numérique sur une attaque de ransomware avec récupération de données.
                             </p>
                             <div class="flex flex-wrap gap-2">
@@ -825,7 +826,7 @@
                                  alt="Gestionnaire de mots de passe"
                                  class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
                             <div class="absolute inset-0 bg-[#0a192f] bg-opacity-70 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-                                <a href="#" class="px-4 py-2 border border-[#64ffda] text-[#64ffda] rounded-md font-medium hover:bg-[#64ffda] hover:text-[#0a192f] transition duration-300">
+                                <a href="#" class="px-4 py-2 border border-[#64ffda] text-[#64ffda] rounded-md font-medium hover:bg-[#64ffda] hover:text-[#0a192f] transition duration-300" data-i18n="projects_details_btn">
                                     Voir les détails
                                 </a>
 
@@ -914,7 +915,7 @@
                             </div>
                             <div>
                                 <h4 class="text-lg font-medium text-[#ccd6f6]" data-i18n="contact_label_linkedin">LinkedIn</h4>
-                                <a href="#" class="text-[#8892b0] hover:text-[#64ffda] transition duration-300">Djikay Ramses</a>
+                                <a href="https://www.linkedin.com/in/ramses-djika%C3%BF-fils/?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%3BRrPPZdxtSUuAGbYmna6vpg%3D%3D" target="_blank" class="text-[#8892b0] hover:text-[#64ffda] transition duration-300">Djikay Ramses</a>
                             </div>
                         </div>
 
@@ -924,7 +925,7 @@
                             </div>
                             <div>
                                 <h4 class="text-lg font-medium text-[#ccd6f6]" data-i18n="contact_label_github">GitHub</h4>
-                                <a href="#" class="text-[#8892b0] hover:text-[#64ffda] transition duration-300">github.com/ramses-dev</a>
+                                <a href="https://github.com/Ramsesnimpa" target="_blank" class="text-[#8892b0] hover:text-[#64ffda] transition duration-300">github.com/Ramsesnimpa</a>
                             </div>
                         </div>
                     </div>
